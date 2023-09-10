@@ -1,0 +1,26 @@
+name: main
+
+run-name: ${{ github.event.client_payload.title }} - ${{ github.event.client_payload.repo }}
+
+on:
+  repository_dispatch:
+    types: [labeled-issue]
+
+jobs:
+  sync-github-issue-to-notion:
+    runs-on: ubuntu-latest
+    name: Create Notion Ticket
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 16
+      - name: Sync GitHub Issue to Notion
+        run: 'node ./dist/index.js'
+        shell: bash
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_HP2_TASK_DATABASE_ID: ${{ secrets.NOTION_TASK_DATABASE_ID }}
+          TITLE: ${{ github.event.client_payload.title }}
+          URL: ${{ github.event.client_payload.url }}
+          REPO: ${{ github.event.client_payload.repo }}
